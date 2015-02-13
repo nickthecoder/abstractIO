@@ -41,7 +41,7 @@ void setup()
 
 void loop()
 {
-
+    // Look, we test both buttons in exactly the same way, but one is debounced, the other isn't.
     if ( buttonA->pressed() || buttonB->pressed() ) {
       count ++;
     }

@@ -133,8 +133,9 @@ class SimpleOutput : public Output
 };
 
 class EasedAnalogInput;
-class TrimmedAnalogInput;
+class ClippedAnalogInput;
 class ScaledAnalogInput;
+class BinaryInput;
 
 /*
 Abstracts analog inputs. The application code should not need to know the details of how to read the analog input
@@ -147,11 +148,12 @@ It is also necessary to give a consistent interface with other analog sources (e
 class AnalogInput
 {
   public :
-    float get(); // All direct (unmapped) measurements should be in the range 0..1
+    virtual float get() = 0; // All direct (unmapped) measurements should be in the range 0..1
     
     EasedAnalogInput* ease( Ease *ease );
-    TrimmedAnalogInput* trim( float minimum, float maximum );
+    ClippedAnalogInput* clip( float minimum, float maximum );
     ScaledAnalogInput* scale( float scale );
+    BinaryInput* binary( float calibration = 0.5, boolean reversed = false );
 };
 
 /*
@@ -159,7 +161,7 @@ Note that the output of get is in the range 0..1 (inclusive), which is NOT the r
 It does this because we want a consistent interface when mixing and matching different inputs, which may
 include external analog to digital converts, with different range's to the Arduino's analag pins.
 */
-class SimpleAnalogInput
+class SimpleAnalogInput : public AnalogInput
 {
   public :
     int pin;
@@ -173,11 +175,11 @@ class SimpleAnalogInput
 
 /*
 Sometimes an analog input doesn't extend over the full range of 0..1, and you want to adjust the values, so that they still return a complete range of 0..1.
-In which case, use TrimmedAnalogInput, to chop off the low and/or high end, and normalise it back to 0..1.
+In which case, use ClippedAnalogInput, to chop off the low and/or high end, and normalise it back to 0..1.
 
 Note that you can reverse the low and high values, in which case the result will still be in the range 0..1, but will be backwards compared to the input.
 */
-class TrimmedAnalogInput : public AnalogInput
+class ClippedAnalogInput : public AnalogInput
 {
   private :
     AnalogInput* wrapped;
@@ -187,7 +189,7 @@ class TrimmedAnalogInput : public AnalogInput
     float maximum;
 
   public :
-    TrimmedAnalogInput( AnalogInput* wrap, float low, float high );
+    ClippedAnalogInput( AnalogInput* wrap, float low, float high );
     
     virtual float get();
   
@@ -226,6 +228,17 @@ class EasedAnalogInput : public AnalogInput
     virtual float get();
 };
 
+class BinaryInput : public Input
+{
+  private :
+    AnalogInput *wrapped;
+    float calibration;
+    boolean reversed;
+    
+  public :
+    BinaryInput( AnalogInput* wrap, float calibration = 0.5, boolean reversed = false );
+    virtual boolean get();
+};
 
 class ScaledPWMOutput;
 class EasedPWMOutput;

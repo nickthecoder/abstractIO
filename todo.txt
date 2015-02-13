@@ -1,0 +1,32 @@
+
+To Do
+=====
+
+Create more example code - PWM
+
+Input
+-----
+
+Implement a multiplexed input
+
+AnalogInput
+-----------
+
+Implement a multiplexed input
+
+Output
+------
+
+Implement a shift register
+
+PWMOutput
+---------
+
+Implement an external PWM output - waiting for one from China, especially for this!
+
+IR Remote
+---------
+
+Create an IRButton class, using the IR library
+Create a compound Button class. Remove CompoundInput???
+

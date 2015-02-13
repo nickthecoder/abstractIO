@@ -95,17 +95,21 @@ Button::Button( Input* input )
 boolean Button::pressed()
 {
     boolean state = this->input->get();
-    boolean result = state && ! this->previousState;
-    this->previousState = state;
-    return result;
+    if ( state && ! this->previousState ) {
+        this->previousState = true;
+        return true;
+    }
+    return false;
 }
 
 boolean Button::released()
 {
     boolean state = this->input->get();
-    boolean result = (!state) && this->previousState;
-    this->previousState = state;
-    return result;
+    if ( (!state) && this->previousState ) {
+        this->previousState = false;
+        return true;
+    }
+    return false;
 }
 
 boolean Button::get()
@@ -132,14 +136,19 @@ EasedAnalogInput* AnalogInput::ease( Ease* ease )
     return new EasedAnalogInput( this, ease );
 }
 
-TrimmedAnalogInput* AnalogInput::trim( float minimum, float maximum )
+ClippedAnalogInput* AnalogInput::clip( float minimum, float maximum )
 {
-    return new TrimmedAnalogInput( this, minimum, maximum );
+    return new ClippedAnalogInput( this, minimum, maximum );
 }
 
 ScaledAnalogInput* AnalogInput::scale( float scale )
 {
     return new ScaledAnalogInput( this, scale );
+}
+
+BinaryInput* AnalogInput::binary( float calibration, boolean reversed )
+{
+    return new BinaryInput( this, calibration, reversed );
 }
     
 SimpleAnalogInput::SimpleAnalogInput( int pin )
@@ -151,17 +160,17 @@ SimpleAnalogInput::SimpleAnalogInput( int pin )
 float SimpleAnalogInput::get()
 {
     float raw = analogRead( this->pin );
-    return raw / 1023; // NOTE. the range is 0..1 INCLUSIVE, therefore use 1023, not 1024.
+    return raw / 1023.0f; // NOTE. the range is 0..1 INCLUSIVE, therefore use 1023, not 1024.
 }
 
-TrimmedAnalogInput::TrimmedAnalogInput( AnalogInput* wrap, float minimum, float maximum )
+ClippedAnalogInput::ClippedAnalogInput( AnalogInput* wrap, float minimum, float maximum )
   : wrapped( wrap )
 {
     this->minimum = minimum;
     this->maximum = maximum;
 }
 
-float TrimmedAnalogInput::get()
+float ClippedAnalogInput::get()
 {
     float raw = this->wrapped->get();
     
@@ -201,6 +210,19 @@ EasedAnalogInput::EasedAnalogInput( AnalogInput* wrap, Ease* ease )
 float EasedAnalogInput::get()
 {
     return this->ease->ease( this->wrapped->get() );
+}
+
+
+BinaryInput::BinaryInput( AnalogInput *wrap, float calibration, boolean reversed )
+{
+    this->wrapped = wrap;
+    this->calibration = calibration;
+    this->reversed = reversed;
+}
+
+boolean BinaryInput::get()
+{
+    return (this->wrapped->get() < this->calibration) ^ this->reversed;
 }
 
 
