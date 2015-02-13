@@ -9,7 +9,6 @@
 
 #include <Arduino.h>
 
-
 // Declared lower down.
 class Ease;
 class Button;
