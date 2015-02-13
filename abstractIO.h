@@ -132,6 +132,16 @@ class SimpleOutput : public Output
     virtual void set( boolean value );    
 };
 
+class BufferedOutput : public Output
+{
+  public :
+    boolean *buffer;
+    
+  public :
+    BufferedOutput( boolean* buffer );
+    virtual void set( boolean value );
+};
+
 class EasedAnalogInput;
 class ClippedAnalogInput;
 class ScaledAnalogInput;
@@ -260,6 +270,9 @@ class PWMOutput
 class SimplePWMOutput : public PWMOutput
 {
   public :
+    byte pin;
+    
+  public :
     SimplePWMOutput( int pin );
     
     virtual void set( float value ); // Range 0..1 inclusive
@@ -345,6 +358,14 @@ class EaseOutQuart : public Ease {
     virtual float ease( float from );
 };
 
+extern Linear linear;
+extern Jump jump;
+extern EaseInQuad easeInQuad;
+extern EaseInCubic easeInCubic;
+extern EaseInQuart easeInQuart;
+extern EaseOutQuad easeOutQuad;
+extern EaseOutCubic easeOutCubic;
+extern EaseOutQuart easeOutQuart;
 
 #endif
 
