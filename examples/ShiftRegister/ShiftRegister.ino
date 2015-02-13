@@ -1,5 +1,5 @@
 #include <abstractIO.h>
-#include <abstract_M74HC59.h>
+#include <abstract_M74HC595.h>
 
 /*
 Use a shift registor to light 8 LEDs
@@ -16,7 +16,7 @@ NOTE, If you've used delay(), for timings, then this won't work without sprinkli
 each delay. Using delay is best avoided though!
 */
 
-M74HC59* shift;
+M74HC595* shift;
 
 Output* out0;
 Output* out1;
@@ -33,7 +33,7 @@ int counter = 0;
 void setup()
 {
     Serial.begin( 9600 );
-    shift = (new M74HC59())->shiftClock(11)->storageClock(12)->data(2);
+    shift = (new M74HC595())->shiftClock(11)->storageClock(12)->data(2);
     
     out0 = new BufferedOutput( shift->buffer + 0 );
     out1 = new BufferedOutput( shift->buffer + 1 );
