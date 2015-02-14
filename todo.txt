@@ -2,7 +2,8 @@
 To Do
 =====
 
-Create more example code - PWM
+Create more example code
+  PWM
 
 Input
 -----
@@ -18,6 +19,7 @@ Output
 ------
 
 Implement a shift register
+  Done, but now I want to give the option of using SPI to
 
 PWMOutput
 ---------

@@ -135,10 +135,11 @@ class SimpleOutput : public Output
 class BufferedOutput : public Output
 {
   public :
-    boolean *buffer;
+    byte *buffer;
+    byte mask;
     
   public :
-    BufferedOutput( boolean* buffer );
+    BufferedOutput( boolean* buffer, int index );
     virtual void set( boolean value );
 };
 

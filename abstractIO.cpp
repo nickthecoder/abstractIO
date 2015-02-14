@@ -129,14 +129,18 @@ void SimpleOutput::set( boolean value )
     digitalWrite( this->pin, value == lowValue ? LOW : HIGH );
 }
 
-BufferedOutput::BufferedOutput( boolean *buffer )
+BufferedOutput::BufferedOutput( byte *buffer, int index )
 {
-    this->buffer = buffer;
+    this->mask = 1 << (index % 8);
+    this->buffer = buffer + index / 8;
 }
 
 void BufferedOutput::set( boolean value )
 {
-    *this->buffer = value;
+    *this->buffer |= this->mask;
+    if ( ! value ) {
+        *this->buffer ^= this->mask;
+    }
 }
 
 
@@ -248,7 +252,6 @@ SimplePWMOutput::SimplePWMOutput( int pin )
 void SimplePWMOutput::set( float value )
 {
     int v = value * 255.0f;
-    Serial.println( v );
     analogWrite( this->pin, v);
 }
 

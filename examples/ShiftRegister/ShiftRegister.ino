@@ -1,5 +1,7 @@
+#include <SPI.h>
+
 #include <abstractIO.h>
-#include <abstract_M74HC595.h>
+#include <abstract_shift595.h>
 
 /*
 Use a shift registor to light 8 LEDs
@@ -16,7 +18,7 @@ NOTE, If you've used delay(), for timings, then this won't work without sprinkli
 each delay. Using delay is best avoided though!
 */
 
-M74HC595* shift;
+Shift595* shift;
 
 Output* out0;
 Output* out1;
@@ -33,16 +35,18 @@ int counter = 0;
 void setup()
 {
     Serial.begin( 9600 );
-    shift = (new M74HC595())->shiftClock(11)->storageClock(12)->data(2);
+    // shift = (new Shift595())->pins( 12 ); // transfer using SPI hardware, faster, but must be on particular pins
+    shift = (new Shift595())->pins( 12, 11, 2 ); // shiftOut using Software, on arbirary pins
+
     
-    out0 = new BufferedOutput( shift->buffer + 0 );
-    out1 = new BufferedOutput( shift->buffer + 1 );
-    out2 = new BufferedOutput( shift->buffer + 2 );
-    out3 = new BufferedOutput( shift->buffer + 3 );
-    out4 = new BufferedOutput( shift->buffer + 4 );
-    out5 = new BufferedOutput( shift->buffer + 5 );
-    out6 = new BufferedOutput( shift->buffer + 6 );
-    out7 = new BufferedOutput( shift->buffer + 7 );
+    out0 = new BufferedOutput( shift->buffer, 0 );
+    out1 = new BufferedOutput( shift->buffer, 1 );
+    out2 = new BufferedOutput( shift->buffer, 2 );
+    out3 = new BufferedOutput( shift->buffer, 3 );
+    out4 = new BufferedOutput( shift->buffer, 4 );
+    out5 = new BufferedOutput( shift->buffer, 5 );
+    out6 = new BufferedOutput( shift->buffer, 6 );
+    out7 = new BufferedOutput( shift->buffer, 7 );
 }
 
 void loop()
@@ -59,6 +63,7 @@ void loop()
     out6->set( counter % 8 ); 
     out7->set( counter % 9 ); 
 
+    Serial.print( "Value " ); Serial.println( shift->buffer[0] );
     shift->update(); // Update the display
     delay( 1300 );
     counter ++;
