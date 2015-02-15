@@ -9,10 +9,48 @@
 
 #include <Arduino.h>
 
-// Declared lower down.
-class Ease;
-class Button;
+#define ABSTRACT_NOT_USED 255 // Indicates that this pin number is not set
+
+
+// Here's a "contents" page, broken up into groups.
+// The top of the group is typically a pure-virtual class (interface), with implementations below it.
+
+class Input;
 class SimpleInput;
+class DebouncedInput;
+class CompoundInput;
+class BinaryInput;
+
+class Button;
+
+class Output;
+class SimpleOutput;
+class BufferedOutput;
+
+class AnalogInput;
+class SimpleAnalogInput;
+class ClippedAnalogInput;
+class ScaledAnalogInput;
+class EasedAnalogInput;
+
+class PWMOutput;
+class SimplePWMOutput;
+class EasedPWMOutput;
+class ScaledPWMOutput;
+
+class Selector;
+class MuxWithSelector;
+
+class Ease;
+class Linear;
+class Jump;
+class EaseInQuad;
+class EaseInCubic;
+class EaseInQuart;
+class EaseOutQuad;
+class EaseOutCubic;
+class EaseOutQuart;
+
 
 /*
 A digital input, returning true or false.
@@ -94,6 +132,20 @@ class CompoundInput : public Input
     virtual boolean get();
 };
 
+
+class BinaryInput : public Input
+{
+  private :
+    AnalogInput *wrapped;
+    float calibration;
+    boolean reversed;
+    
+  public :
+    BinaryInput( AnalogInput* wrap, float calibration = 0.5, boolean reversed = false );
+    virtual boolean get();
+};
+
+
 /*
   You often want to know if a switch has been pressed, not if the switch is currently held down.
   i.e. you only want it to return true ONCE per press, rather than every time through the loop
@@ -142,11 +194,6 @@ class BufferedOutput : public Output
     BufferedOutput( boolean* buffer, int index );
     virtual void set( boolean value );
 };
-
-class EasedAnalogInput;
-class ClippedAnalogInput;
-class ScaledAnalogInput;
-class BinaryInput;
 
 /*
 Abstracts analog inputs. The application code should not need to know the details of how to read the analog input
@@ -239,20 +286,19 @@ class EasedAnalogInput : public AnalogInput
     virtual float get();
 };
 
-class BinaryInput : public Input
+class MuxAnalogInput
 {
   private :
-    AnalogInput *wrapped;
-    float calibration;
-    boolean reversed;
-    
-  public :
-    BinaryInput( AnalogInput* wrap, float calibration = 0.5, boolean reversed = false );
-    virtual boolean get();
-};
+    Selector *mux;
+    byte address;
+    AnalogInput *input;
 
-class ScaledPWMOutput;
-class EasedPWMOutput;
+  public :
+    MuxAnalogInput( Selector *mux, byte address, AnalogInput *input );
+    
+    virtual float get();
+
+};
 
 /*
 Create an abstract layer, so that outputting PWM signals is simple for your application regardless of the details.
@@ -305,6 +351,35 @@ class ScaledPWMOutput : public PWMOutput
     
     virtual void set( float value );
 };
+
+
+class Selector {
+
+  public :
+    virtual void select( int address ) = 0;
+};
+
+/*
+Control multiple mux/demux chips with the help of a chip selector.
+During select(), the first N bits of the address are used as address lines to the mux,
+The remaining bits are right shifted, and used by the chip selector.
+
+Typical usage is to have many mux chips (such as a 4051), and either a line decoder 138,
+or a shift-register 164 as the chip selector.
+*/
+class MuxWithChipSelector : public Selector
+{
+  private :
+    Selector* mux;
+    byte addressLines; // The number of address lines a single mux chip supports (often 3).
+    Selector* chipSelector;
+  
+  public :
+    MuxWithChipSelector( Selector* mux, Selector* chipSelector, byte addressLines = 3 );
+        
+    void select( int address );
+};
+
 
 /*
 Converts a number in the range 0..1 to another number, usually also in the range 0..1
@@ -367,6 +442,7 @@ extern EaseInQuart easeInQuart;
 extern EaseOutQuad easeOutQuad;
 extern EaseOutCubic easeOutCubic;
 extern EaseOutQuart easeOutQuart;
+
 
 #endif
 

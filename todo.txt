@@ -3,8 +3,14 @@ To Do
 =====
 
 Create more example code
-  PWM
+  Muxed analog inputs
+    Using a single AnalogInput (all the same kind of inputs)
+    Using different AnalogInputs (different kinds of inputs)
+  Muxed analog inputs with a line select decoder chip (awaiting delivery!)
 
+  Use a 164 and/or a 183 to select a chip.
+    Note, I've written code for a 183, but can't tested it till the chips arrive from china.
+  
 Input
 -----
 
@@ -17,9 +23,7 @@ Implement a multiplexed input
 
 Output
 ------
-
-Implement a shift register
-  Done, but now I want to give the option of using SPI too
+Mux/Demux output
 
 PWMOutput
 ---------
@@ -31,4 +35,6 @@ IR Remote
 
 Create an IRButton class, using the IR library
 Create a compound Button class. Remove CompoundInput???
+
+
 

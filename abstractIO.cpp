@@ -86,6 +86,19 @@ boolean CompoundInput::get()
 }
 
 
+BinaryInput::BinaryInput( AnalogInput *wrap, float calibration, boolean reversed )
+{
+    this->wrapped = wrap;
+    this->calibration = calibration;
+    this->reversed = reversed;
+}
+
+boolean BinaryInput::get()
+{
+    return (this->wrapped->get() < this->calibration) ^ this->reversed;
+}
+
+
 Button::Button( Input* input )
   : input( input )
 {
@@ -201,7 +214,6 @@ float ClippedAnalogInput::get()
     return result;
 }
 
-
 ScaledAnalogInput::ScaledAnalogInput( AnalogInput* wrap, float scale )
 {
     this->wrapped = wrap;
@@ -225,18 +237,6 @@ float EasedAnalogInput::get()
     return this->ease->ease( this->wrapped->get() );
 }
 
-
-BinaryInput::BinaryInput( AnalogInput *wrap, float calibration, boolean reversed )
-{
-    this->wrapped = wrap;
-    this->calibration = calibration;
-    this->reversed = reversed;
-}
-
-boolean BinaryInput::get()
-{
-    return (this->wrapped->get() < this->calibration) ^ this->reversed;
-}
 
 EasedPWMOutput* PWMOutput::ease( Ease *ease )
 {
@@ -283,6 +283,23 @@ void EasedPWMOutput::set( float value )
     this->wrapped->set( this->ease->ease( value ) );
 }
 
+
+
+MuxWithChipSelector::MuxWithChipSelector( Selector* mux, Selector* chipSelector, byte addressLines )
+{
+    this->mux = mux;
+    this->chipSelector = chipSelector;
+    this->addressLines = addressLines;
+}
+
+void MuxWithChipSelector::select( int address )
+{
+    this->mux->select( address );
+    this->chipSelector->select( address >> this->addressLines );
+}
+
+
+
 float Linear::ease( float from  )
 {
     return from;
@@ -315,7 +332,6 @@ float EaseInQuart::ease( float from )
     return from * from * from * from;
 }
 EaseInQuart easeInQuart = EaseInQuart();
-
 
 
 float EaseOutQuad::ease( float from )

@@ -12,6 +12,7 @@ unless YOU put it there, despite the fact that this library already includes it.
 #define abstract_Shift595_h
 
 #include <Arduino.h>
+#include "abstractIO.h"
 
 class Shift595 {
 

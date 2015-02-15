@@ -1,8 +1,6 @@
 #include "abstract_shift595.h"
 #include "SPI.h"
 
-#define NOT_USED 255
-
 Shift595::Shift595( int byteCount )
 {
     this->buffer = (byte*) malloc( byteCount );
@@ -16,8 +14,8 @@ Shift595::Shift595( int byteCount )
 Shift595* Shift595::pins( int latchPin )
 {
     this->latchPin = latchPin;
-    this->clockPin = NOT_USED;
-    this->dataPin = NOT_USED;
+    this->clockPin = ABSTRACT_NOT_USED;
+    this->dataPin = ABSTRACT_NOT_USED;
 
     pinMode( latchPin, OUTPUT );
 
@@ -47,7 +45,7 @@ void Shift595::update()
     digitalWrite( this->latchPin, LOW );
 
     Serial.print( "Clock pin " ); Serial.println( clockPin );
-    if ( this->clockPin == NOT_USED ) {
+    if ( this->clockPin == ABSTRACT_NOT_USED ) {
         // Use hardware SPI to shift the data
         for ( int i = 0; i < this->byteCount; i ++ ) {   
             Serial.print( "SPI transfer " ); Serial.println( buffer[i] );
