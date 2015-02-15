@@ -35,8 +35,8 @@ int counter = 0;
 void setup()
 {
     Serial.begin( 9600 );
-    // shift = (new Shift595())->pins( 12 ); // transfer using SPI hardware, faster, but must be on particular pins
-    shift = (new Shift595())->pins( 12, 11, 2 ); // shiftOut using Software, on arbirary pins
+    shift = (new Shift595())->pins( 2 ); // transfer using SPI hardware, faster, but must be on particular pins
+    // shift = (new Shift595())->pins( 2, 13, 11 ); // shiftOut using Software, on arbirary pins
 
     
     out0 = new BufferedOutput( shift->buffer, 0 );
@@ -52,7 +52,7 @@ void setup()
 void loop()
 {
     Serial.println( counter );
-    
+
     // Display if the counter is divisible by 2,3,4...
     out0->set( counter % 2 ); 
     out1->set( counter % 3 ); 

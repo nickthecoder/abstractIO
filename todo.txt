@@ -19,7 +19,7 @@ Output
 ------
 
 Implement a shift register
-  Done, but now I want to give the option of using SPI to
+  Done, but now I want to give the option of using SPI too
 
 PWMOutput
 ---------

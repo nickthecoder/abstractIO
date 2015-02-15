@@ -1,6 +1,8 @@
 #include "abstract_shift595.h"
 #include "SPI.h"
 
+#define NOT_USED 255
+
 Shift595::Shift595( int byteCount )
 {
     this->buffer = (byte*) malloc( byteCount );
@@ -8,14 +10,14 @@ Shift595::Shift595( int byteCount )
     for ( int i = 0; i < byteCount; i ++ ) {
         this->buffer[i] = 0;
     }
-    this->bitOrder = LSBFIRST;
+    this->bitOrder = MSBFIRST;
 }
 
 Shift595* Shift595::pins( int latchPin )
 {
     this->latchPin = latchPin;
-    this->clockPin = -1;
-    this->dataPin = -1;
+    this->clockPin = NOT_USED;
+    this->dataPin = NOT_USED;
 
     pinMode( latchPin, OUTPUT );
 
@@ -41,23 +43,28 @@ Shift595* Shift595::pins( int latchPin, int clockPin, int dataPin )
 
 void Shift595::update()
 {
+    Serial.print( "Latch Low " ); Serial.println( latchPin );
     digitalWrite( this->latchPin, LOW );
 
-    if ( this->clockPin < 0 ) {
+    Serial.print( "Clock pin " ); Serial.println( clockPin );
+    if ( this->clockPin == NOT_USED ) {
         // Use hardware SPI to shift the data
         for ( int i = 0; i < this->byteCount; i ++ ) {   
+            Serial.print( "SPI transfer " ); Serial.println( buffer[i] );
             SPI.transfer(this->buffer[i]);
         }
         
     } else {
-
+        // Use software to shift the data
         for ( int i = 0; i < this->byteCount; i ++ ) {   
+            Serial.print( "ShiftOut " ); Serial.println( buffer[i] );
             shiftOut( this->dataPin, this->clockPin, this->bitOrder, this->buffer[i] );
         }
     }
         
     // Move data from the shift register into the storage register
     digitalWrite( this->latchPin, HIGH );
+    Serial.print( "Latch High " ); Serial.println( latchPin );
 }
 
 
