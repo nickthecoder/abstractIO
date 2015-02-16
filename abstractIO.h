@@ -18,10 +18,13 @@
 class Input;
 class SimpleInput;
 class DebouncedInput;
-class CompoundInput;
 class BinaryInput;
+class MuxInput;
 
 class Button;
+class InputButton;
+class CompoundButton;
+// See abstract_remote.h for RemoteButton
 
 class Output;
 class SimpleOutput;
@@ -67,7 +70,7 @@ class Input
     Input* debounced();
     
     // Create a button from this input
-    Button* button();
+    InputButton* button();
 };
 
 /*
@@ -115,24 +118,6 @@ class DebouncedInput : public Input
 };
 
 
-/*
-Combines multiple inputs together, and get() will return true if any of them return true.
-This is useful if you project has different means of inputting the same information.
-For example, a physical button, and also an infra red signal.
-*/
-class CompoundInput : public Input
-{
-  private :
-    Input **inputs; // An array of pointers to Input. Why can't I use Input *inputs[]; ?
-    byte count;
-    
-  public :
-    CompoundInput( Input **inputs, byte count );
-    
-    virtual boolean get();
-};
-
-
 class BinaryInput : public Input
 {
   private :
@@ -145,15 +130,40 @@ class BinaryInput : public Input
     virtual boolean get();
 };
 
+class MuxInput
+{
+  private :
+    Selector *mux;
+    byte address;
+    Input *input;
+
+  public :
+    MuxInput( Selector *mux, byte address, Input *input );
+    
+    virtual boolean get();
+
+};
+
+
+/*
+  A pure virtual class (interface).
+*/
+class Button
+{
+  public :
+    virtual boolean pressed() = 0;
+    virtual boolean released() = 0;
+    virtual boolean get() = 0; // Returns the current state (just like Input).
+};
 
 /*
   You often want to know if a switch has been pressed, not if the switch is currently held down.
   i.e. you only want it to return true ONCE per press, rather than every time through the loop
   until the switch is released.
-  
-  Button takes an Input, and keeps track of its state.
+
+  InputButton takes an Input, and keeps track of its state.
 */
-class Button
+class InputButton : public Button
 {
   public :
     Input* input;
@@ -162,11 +172,33 @@ class Button
     boolean previousState; // The previous value the last time pressed was called.
       
   public :
-    Button( Input* input );
-    boolean pressed();
-    boolean released();
-    boolean get(); // Returns the current state (just like Input).
+    InputButton( Input* input );
+    
+    virtual boolean pressed();
+    virtual boolean released();
+    virtual boolean get();
 };
+
+/*
+Combines multiple buttons together, and get()/pressed()/released() will return true if any of them
+return true.
+This is useful if you project has different means of inputting the same information.
+For example, a physical button, and also an infra red signal.
+*/
+class CompoundButton : public Button
+{
+  private :
+    Button **buttons; // An array of pointers to Button. Why can't I use Button *buttons[]; ?
+    byte count;
+    
+  public :
+    CompoundButton( Button **buttons, byte count );
+    
+    virtual boolean get();
+    virtual boolean pressed();
+    virtual boolean released();
+};
+
 
 class Output {
   public :

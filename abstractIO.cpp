@@ -11,9 +11,9 @@ Input* Input::debounced()
     return new DebouncedInput( this );
 }
 
-Button* Input::button()
+InputButton* Input::button()
 {
-    return new Button( this );
+    return new InputButton( this );
 }
 
 SimpleInput::SimpleInput( int pin, byte trueReading, boolean enablePullup )
@@ -21,10 +21,7 @@ SimpleInput::SimpleInput( int pin, byte trueReading, boolean enablePullup )
     this->pin = pin;
     this->trueReading = trueReading;
     
-    pinMode( pin, INPUT );
-    if ( enablePullup ) {
-        digitalWrite( pin, HIGH ); // turn on pullup resistors
-    }
+    pinMode( pin, enablePullup ? INPUT_PULLUP : INPUT );
 }
 
 
@@ -69,23 +66,6 @@ boolean DebouncedInput::get()
 }
 
 
-CompoundInput::CompoundInput( Input **inputs, byte count )
-{
-    this->inputs = inputs;
-    this->count = count;  
-}
-
-boolean CompoundInput::get()
-{
-    for ( int i = 0; i < this->count; i ++ ) {
-        if (this->inputs[i]->get() ) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
 BinaryInput::BinaryInput( AnalogInput *wrap, float calibration, boolean reversed )
 {
     this->wrapped = wrap;
@@ -99,13 +79,29 @@ boolean BinaryInput::get()
 }
 
 
-Button::Button( Input* input )
+MuxInput::MuxInput( Selector *mux, byte address, Input *input )
+{
+    this->mux = mux;
+    this->address = address;
+    this->input = input;
+}
+
+boolean MuxInput::get()
+{
+    this->mux->select( address );
+    return this->input->get();
+}
+
+
+
+
+InputButton::InputButton( Input* input )
   : input( input )
 {
     this->previousState = this->input->get();
 }
 
-boolean Button::pressed()
+boolean InputButton::pressed()
 {
     boolean state = this->input->get();
     if ( state && ! this->previousState ) {
@@ -115,7 +111,7 @@ boolean Button::pressed()
     return false;
 }
 
-boolean Button::released()
+boolean InputButton::released()
 {
     boolean state = this->input->get();
     if ( (!state) && this->previousState ) {
@@ -125,10 +121,54 @@ boolean Button::released()
     return false;
 }
 
-boolean Button::get()
+boolean InputButton::get()
 {
     return this->input->get();
 }
+
+
+CompoundButton::CompoundButton( Button **button, byte count )
+{
+    this->buttons = buttons;
+    this->count = count;  
+}
+
+boolean CompoundButton::get()
+{
+    for ( int i = 0; i < this->count; i ++ ) {
+        if (this->buttons[i]->get() ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+boolean CompoundButton::pressed()
+{
+    // We check all buttons, even after we find a match, because pressed() can have a side effect,
+    // so we need to call them (to avoid weirdness if more than one grouped button is pressed).
+    boolean result = false;
+    for ( int i = 0; i < this->count; i ++ ) {
+        if (this->buttons[i]->pressed() ) {
+            result = true;
+        }
+    }
+    return result;
+}
+
+boolean CompoundButton::released()
+{
+    // We check all buttons, even after we find a match, because pressed() can have a side effect,
+    // so we need to call them (to avoid weirdness if more than one grouped button is pressed).
+    boolean result = false;
+    for ( int i = 0; i < this->count; i ++ ) {
+        if (this->buttons[i]->released() ) {
+            result = true;
+        }
+    }
+    return result;
+}
+
 
 SimpleOutput::SimpleOutput( int pin, boolean lowValue )
 {
@@ -236,6 +276,22 @@ float EasedAnalogInput::get()
 {
     return this->ease->ease( this->wrapped->get() );
 }
+
+
+MuxAnalogInput::MuxAnalogInput( Selector *mux, byte address, AnalogInput *input )
+{
+    this->mux = mux;
+    this->address = address;
+    this->input = input;
+}
+
+float MuxAnalogInput::get()
+{
+    this->mux->select( address );
+    return this->input->get();
+}
+
+
 
 
 EasedPWMOutput* PWMOutput::ease( Ease *ease )

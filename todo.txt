@@ -11,19 +11,30 @@ Create more example code
   Use a 164 and/or a 183 to select a chip.
     Note, I've written code for a 183, but can't tested it till the chips arrive from china.
   
+  Create boards to test each scenario
+    Each board allows an Arduino Nano to be plugged onto it (or the pro mini?)
+    Simple scenarios can go onto one board :
+      Simple switches
+      Fade LED
+      Analog (pot, light sensor)
+  595 shift register - add two shift registers, and 16 leds
+  MuxAnalogInput
+    16 LDRs in a 4x4 grid?
+    Two 4051s, an inverter, a 138 and a 164
+    Jumpers on the chip selects
+      Either to the arduino&inverter, or the 138 or the 164.
+
 Input
 -----
 
-Implement a multiplexed input
 
 AnalogInput
 -----------
 
-Implement a multiplexed input
 
 Output
 ------
-Mux/Demux output
+
 
 PWMOutput
 ---------
