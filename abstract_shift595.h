@@ -26,10 +26,7 @@ class Shift595 {
     boolean bitOrder; // Either MSBFIRST or LSBFIRST
    
   public :
-    Shift595( int byteCount = 1 );
-
-    Shift595* pins( int latchPin ); // Using Hardware SPI
-    Shift595* pins( int latchPin, int clockPin, int dataPin ); // Using Software.
+    Shift595( int latchPin, int clockPin, int dataPin, int byteCount = 1 );
 
     void update();
 };

@@ -1,0 +1,44 @@
+Input	KEYWORD1
+SimpleInput	KEYWORD1
+DebouncedInput	KEYWORD1
+CompoundInput	KEYWORD1
+BinaryInput	KEYWORD1
+MuxInput	KEYWORD1
+
+Button	KEYWORD1
+
+Output	KEYWORD1
+SimpleOutput	KEYWORD1
+BufferedOutput	KEYWORD1
+
+AnalogInput	KEYWORD1
+SimpleAnalogInput	KEYWORD1
+ClippedAnalogInput	KEYWORD1
+ScaledAnalogInput	KEYWORD1
+EasedAnalogInput	KEYWORD1
+
+PWMOutput	KEYWORD1
+SimplePWMOutput	KEYWORD1
+EasedPWMOutput	KEYWORD1
+ScaledPWMOutput	KEYWORD1
+
+Selector	KEYWORD1
+MuxWithSelector	KEYWORD1
+
+Ease	KEYWORD1
+Linear	KEYWORD1
+Jump	KEYWORD1
+EaseInQuad	KEYWORD1
+EaseInCubic	KEYWORD1
+EaseInQuart	KEYWORD1
+EaseOutQuad	KEYWORD1
+EaseOutCubic	KEYWORD1
+EaseOutQuart	KEYWORD1
+
+
+LineDecoder138	KEYWORD1
+Shift164Selector	KEYWORD1
+Shift595	KEYWORD1
+Shift595SPI	KEYWORD1
+Mux4051	KEYWORD1
+

@@ -1,4 +1,4 @@
-#include "abstract_remote.h"
+// See abstract_shift595SPI.h for why this has a weird .cpp.h suffix.
 
 RemoteControl* remoteControl;
 

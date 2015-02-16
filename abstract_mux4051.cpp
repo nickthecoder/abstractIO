@@ -48,17 +48,3 @@ void Mux4051Pair::select( int address )
 }
 
 
-MuxAnalogInput::MuxAnalogInput( Selector *mux, byte address, AnalogInput *input )
-{
-    this->mux = mux;
-    this->address = address;
-    this->input = input;
-}
-
-float MuxAnalogInput::get()
-{
-    this->mux->select( address );
-    return this->input->get();
-}
-
-

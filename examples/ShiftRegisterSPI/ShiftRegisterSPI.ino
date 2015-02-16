@@ -1,23 +1,21 @@
 /*
-Use a shift registor to light 8 LEDs
+Use a shift registor to light 8 LEDs using SPI
+For more information on SPI (including which pins to use), see : http://arduino.cc/en/Reference/SPI
 
-The use of BufferedOutput may seen silly, because it would be easier to just write to the buffer
-directly rather than use Output::set().
-However, imagine you start writing a project, and have plenty of pins for your outputs, so you use
-SimpleOutput (and no shift register). You project grows, and you run out of pins.
-Instead of rewriting your project, or buying an Arduino Mega, wire up the shift register,
-change the setup code, add the extra 'shift.update();' statement in the loop() function.
-Your application now has access to more outputs, without any major changes.
-
-NOTE, If you've used delay(), for timings, then this won't work without sprinkling shift->update() after
-each delay. Using delay is best avoided though!
+Before looking at this example, please see ShiftRegister.
+Does the same thing, but uses SPI hardware, which is quicker, but restricts you to using the
+special SPI pins, which are on different pins, depending on the type of Arduino board you have.
 */
 
-#include <abstractIO.h>
-#include <abstract_shift595.h>
+// The includes are different from the non-SPI version.
+#include <SPI.h>
+#include <abstract_shift595SPI.h>
+#include <abstract_shift595SPI.cpp.h>
+// Yes, this is weird, this does include C code, rather than just C headers.
+// See abstract_shift595SPI.h for details of why I chose to do it this way.
 
-Shift595* shift;
-
+// The name of the class is different from the non-SPI version.
+Shift595SPI* shift;
 
 Output* out0;
 Output* out1;
@@ -35,7 +33,11 @@ void setup()
 {
     Serial.begin( 9600 );
 
-    shift = new Shift595(2, 13, 11); // latch, clock, data
+    // The construstor is different from the non-SPI version, as you can only choose the latch pin.
+    // The other two pins MUST be the SPI clock and MOSI pins.
+    shift = new Shift595SPI(2); // transfer using SPI hardware, faster, but must be on particular pins
+
+    // The rest of the code is identical.
 
     out0 = new BufferedOutput( shift->buffer, 0 );
     out1 = new BufferedOutput( shift->buffer, 1 );
