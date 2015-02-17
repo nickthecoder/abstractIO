@@ -20,19 +20,40 @@ Shift595::Shift595( int latchPin, int clockPin, int dataPin, int byteCount )
 
 void Shift595::update()
 {
-    //Serial.print( "Latch Low " ); Serial.println( latchPin );
     digitalWrite( this->latchPin, LOW );
 
-    //Serial.print( "Clock pin " ); Serial.println( clockPin );
-
     for ( int i = 0; i < this->byteCount; i ++ ) {   
-        //Serial.print( "ShiftOut " ); Serial.println( buffer[i] );
         shiftOut( this->dataPin, this->clockPin, this->bitOrder, this->buffer[i] );
     }
         
     // Move data from the shift register into the storage register
     digitalWrite( this->latchPin, HIGH );
-    //Serial.print( "Latch High " ); Serial.println( latchPin );
 }
+
+
+
+
+Shift595Selector::Shift595Selector( int latchPin, int clockPin, int dataPin, int addressLines )
+  : Shift164Selector( clockPin, dataPin, addressLines, false )
+{
+    this->latchPin = latchPin;
+    pinMode( latchPin, OUTPUT );
+
+    digitalWrite( latchPin, LOW );
+    this->initialise();
+    digitalWrite( latchPin, HIGH );
+}
+
+void Shift595Selector::select( int address )
+{   
+    if ( address == this->previousAddress ) {
+        return;
+    }
+        
+    digitalWrite( latchPin, LOW );
+    Shift164Selector::select( address );
+    digitalWrite( latchPin, HIGH );
+}
+
 
 

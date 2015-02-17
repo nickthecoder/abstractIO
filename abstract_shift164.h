@@ -11,20 +11,26 @@ We can arrange for the shift registers's outputs to have all zeros except one -
 for the one chip we wish to enable.
 
 Note: Multiple 164's can be chained together, so the chipCount can be over 8.
-
-It will take Order(n) time to select one of n chips. Therefore, if you are controlling
-less than 8 chips, change the default chipCount parameter in the constructor.
 */
 class Shift164Selector : public Selector
 {
-  private :
-    byte chipCount; // The number of output channels of our chip selector.
+  protected :
+    byte addressLines; // The number of output channels of our chip selector.
     byte clockPin, dataPin;
+    byte previousAddress;
+
+  protected :
+    Shift164Selector( byte clockPin, byte dataPin, byte addressLines, boolean initialise );
 
   public :
-    Shift164Selector( byte clockPin, byte dataPin, byte chipCount = 8 );
+    Shift164Selector( byte clockPin, byte dataPin, byte addressLines = 8 )
+      : Shift164Selector( clockPin, dataPin, addressLines, true ) {};
 
-    void select( int address );
+    virtual void select( int address );
+
+  protected :
+    void shift( int n );
+    void initialise();
 };
 
 #endif
