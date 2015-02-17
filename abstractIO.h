@@ -9,8 +9,33 @@
 
 #include <Arduino.h>
 
+#define ABSTRACT_DEBUG
+
 #define ABSTRACT_NOT_USED 255 // Indicates that this pin number is not set
 
+#ifdef ABSTRACT_DEBUG
+
+#define DOUT1( a ) Serial.println( a );
+#define DOUT2( a, b ) Serial.print( a ); Serial.print( " " ); Serial.println( b );;
+#define DOUT3( a, b, c ) Serial.print( a ); Serial.print( " " ); Serial.print( b ); Serial.print( " " ); Serial.println( c );
+#define DOUT4( a, b, c, d ) Serial.print( a ); Serial.print( " " ); Serial.print( b ); Serial.print( " " ); Serial.print( c ); Serial.print( " " ); Serial.println( d );
+
+#define DVAL1( na,va ) Serial.print( na ); Serial.print( " : " ); Serial.println( va );
+#define DVAL2( na,va, nb,vb ) Serial.print( na ); Serial.print( " : " ); Serial.print( va ); Serial.print( " " ); Serial.print( nb ); Serial.print( " : " ); Serial.println( vb );
+#define DVAL3( na,va, nb,vb, nc,vc ) Serial.print( na ); Serial.print( " : " ); Serial.print( va ); Serial.print( " " ); Serial.print( nb ); Serial.print( " : " ); Serial.print( vb ); Serial.print( nc ); Serial.print( " : " ); Serial.println( vc );
+
+#else
+
+#define DOUT1( a )
+#define DOUT2( a, b )
+#define DOUT3( a, b, c )
+#define DOUT4( a, b, c, d )
+
+#define DVAL1( na,va )
+#define DVAL2( na,va, nb,vb )
+#define DVAL3( na,va, nb,vb, nc,vc )
+
+#endif
 
 // Here's a "contents" page, broken up into groups.
 // The top of the group is typically a pure-virtual class (interface), with implementations below it.

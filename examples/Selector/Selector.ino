@@ -21,8 +21,8 @@ and change the values of "lines" as appropriate. Currently the code for the 138 
 */
 
 Shift595Selector *selector595;
-Shift164Selector *selector164;
-LineDecoder138 *selector138;
+//Shift164Selector *selector164;
+//LineDecoder138 *selector138;
 
 int lines = 8; // Number of output lines of the selector.
 
@@ -34,24 +34,24 @@ void setup()
 {
     Serial.begin( 9600 );
     selector595 = new Shift595Selector( 12, 13, 11, lines ); // latch, clock, data, output line count
-    selector164 = new Shift164Selector( 2, 3, lines ); // clock, data, output line count
-    selector138 = new LineDecoder138( 4, 5, 6 ); // Address pins
+    //selector164 = new Shift164Selector( 2, 3, lines ); // clock, data, output line count
+    //selector138 = new LineDecoder138( 4, 5, 6 ); // Address pins
 }
 
 void loop()
-{
+{    
     Serial.println( "Up" );
     for ( int i = 0; i < lines - 1; i ++ ) {
         selector595->select( i );
-        selector164->select( i );
-        selector138->select( i );
+        //selector164->select( i );
+        //selector138->select( i );
         delay( 500 );
     }
     Serial.println( "Down" );
     for ( int i = lines - 1; i > 0; i -- ) {
         selector595->select( i );
-        selector164->select( i );
-        selector138->select( i );
+        //selector164->select( i );
+        //selector138->select( i );
         delay( 500 );
     }
 }

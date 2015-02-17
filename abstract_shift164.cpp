@@ -1,7 +1,9 @@
 #include "abstract_shift164.h"
 
-Shift164Selector::Shift164Selector( byte clockPin, byte dataPin, byte chipCount, boolean initialise )
+Shift164Selector::Shift164Selector( byte clockPin, byte dataPin, byte addressLines, boolean initialise )
 {
+    DVAL1( "164  lines", addressLines );
+
     this->clockPin = clockPin;
     this->dataPin = dataPin;
     this->addressLines = addressLines;
@@ -42,8 +44,10 @@ void Shift164Selector::select( int address )
         // Hardest case. We are currently AFTER the required. So we need to shift the old "1"
         // out of the way, and move a new "1" into place.
         // So we need some 0s shifted in, then a new 1, then some more 0s.
-        
+
         int shiftOut = this->addressLines - this->previousAddress; // Number of shifts to remove the old 
+
+        // We will shift address + 1 lines later, so just do shiftOut - (address + 1) now.
         this->shift( shiftOut - address - 1 );
         digitalWrite( this->dataPin, HIGH );
         this->shift( 1 );

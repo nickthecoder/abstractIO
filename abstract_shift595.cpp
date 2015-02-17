@@ -36,6 +36,7 @@ void Shift595::update()
 Shift595Selector::Shift595Selector( int latchPin, int clockPin, int dataPin, int addressLines )
   : Shift164Selector( clockPin, dataPin, addressLines, false )
 {
+    DVAL1( "595  lines", addressLines );
     this->latchPin = latchPin;
     pinMode( latchPin, OUTPUT );
 
