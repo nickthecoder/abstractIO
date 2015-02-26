@@ -51,7 +51,7 @@ class Shift595Selector : public Shift164Selector
     byte latchPin;
        
   public :
-    Shift595Selector( int latchPin, int clockPin, int dataPin, int addressLines = 8 );
+    Shift595Selector( int latchPin, int clockPin, int dataPin, int addressLines = 8, byte activeHighLow = LOW );
 
     virtual void select( int address );
 };

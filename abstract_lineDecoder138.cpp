@@ -3,6 +3,7 @@
 
 LineDecoder138::LineDecoder138( byte a0, byte a1, byte a2 )
 {
+    pinMode( a0, OUTPUT );
     if ( a1 != ABSTRACT_NOT_USED ) {
         pinMode( a1, OUTPUT );
     }

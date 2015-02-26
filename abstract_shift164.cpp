@@ -1,12 +1,13 @@
 #include "abstract_shift164.h"
 
-Shift164Selector::Shift164Selector( byte clockPin, byte dataPin, byte addressLines, boolean initialise )
+Shift164Selector::Shift164Selector( byte clockPin, byte dataPin, byte addressLines, byte activeHighLow, boolean initialise )
 {
     DVAL1( "164  lines", addressLines );
 
     this->clockPin = clockPin;
     this->dataPin = dataPin;
     this->addressLines = addressLines;
+    this->activeHighLow = activeHighLow;
 
     pinMode( clockPin, OUTPUT );
     pinMode( dataPin, OUTPUT );
@@ -19,9 +20,9 @@ Shift164Selector::Shift164Selector( byte clockPin, byte dataPin, byte addressLin
 void Shift164Selector::initialise()
 {
     // Ensure the outputs are in a valid state. Set address to 0
-    digitalWrite( dataPin, LOW );
+    digitalWrite( dataPin, ! this->activeHighLow );
     this->shift( this->addressLines - 1 );
-    digitalWrite( dataPin, HIGH );
+    digitalWrite( dataPin, this->activeHighLow );
     this->shift( 1 );
     this->previousAddress = 0;
 }
@@ -32,7 +33,7 @@ void Shift164Selector::select( int address )
         return;
     }
         
-    digitalWrite( this->dataPin, LOW );
+    digitalWrite( this->dataPin, ! this->activeHighLow );
                 
     if ( address > this->previousAddress ) {
         // We are currently LESS than the required address, so just shift by the difference.
@@ -49,9 +50,9 @@ void Shift164Selector::select( int address )
 
         // We will shift address + 1 lines later, so just do shiftOut - (address + 1) now.
         this->shift( shiftOut - address - 1 );
-        digitalWrite( this->dataPin, HIGH );
+        digitalWrite( this->dataPin, this->activeHighLow );
         this->shift( 1 );
-        digitalWrite( this->dataPin, LOW );
+        digitalWrite( this->dataPin, ! this->activeHighLow );
         this->shift( address );
     }
 

@@ -6,24 +6,18 @@ Create more example code
   Muxed analog inputs
     Using a single AnalogInput (all the same kind of inputs)
     Using different AnalogInputs (different kinds of inputs)
-  Muxed analog inputs with a line select decoder chip (awaiting delivery!)
 
-  Use a 164 and/or a 183 to select a chip.
-    Note, I've written code for a 183, but can't tested it till the chips arrive from china.
-    Could use the 595 shifts, and use a single pin for clock and latch (inverted?)
-
-  Create boards to test each scenario
-    Each board allows an Arduino Nano to be plugged onto it (or the pro mini?)
-    Simple scenarios can go onto one board :
-      Simple switches
-      Fade LED
-      Analog (pot, light sensor)
-  595 shift register - add two shift registers, and 16 LEDs
-  MuxAnalogInput
     16 LDRs in a 4x4 grid?
     Two 4051s, an inverter, a 138 and a 164
     Jumpers on the chip selects
       Either to the arduino&inverter, or the 138 or the 164.
+
+  Test the Shift164 and LineDecoder138 in "Selector" example (when the chips arrive in the post).
+
+  595 shift register - add two shift registers, and 16 LEDs
+
+Create test boards for each of the examples.
+  
 
 Input
 -----

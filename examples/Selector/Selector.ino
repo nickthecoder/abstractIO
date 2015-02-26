@@ -24,7 +24,7 @@ Shift595Selector *selector595;
 //Shift164Selector *selector164;
 //LineDecoder138 *selector138;
 
-int lines = 8; // Number of output lines of the selector.
+int lines = 6; // Number of output lines of the selector.
 
 // If you connect all 8 lines to LEDs and then reduce the lines to 4, you will see that the first four lines
 // are well behaved, and the last four will have junk in them. This is *not* a bug, its just a side effect of
@@ -39,7 +39,7 @@ void setup()
 }
 
 void loop()
-{    
+{ 
     Serial.println( "Up" );
     for ( int i = 0; i < lines - 1; i ++ ) {
         selector595->select( i );
