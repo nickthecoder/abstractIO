@@ -6,17 +6,28 @@
 
 #include "abstractIO.h"
 
+AbstractSerial::AbstractSerial( int baud ) {
+    Serial.begin( baud );
+    
+};
+
+// INPUT
+
 Input* Input::debounced()
 {
     return new DebouncedInput( this );
 }
+
+// INPUT BUTTON
 
 InputButton* Input::button()
 {
     return new InputButton( this );
 }
 
-SimpleInput::SimpleInput( int pin, byte trueReading, boolean enablePullup )
+// SIMPLE INPUT
+
+SimpleInput::SimpleInput( int pin, boolean trueReading, boolean enablePullup )
 {
     this->pin = pin;
     this->trueReading = trueReading;
@@ -31,14 +42,45 @@ boolean SimpleInput::get()
 }
 
 
+// MUX
 
-DebouncedInput::DebouncedInput( Input* wrap, int debounceMillis )
-  : wrapped(wrap)
+Mux::Mux( Selector *selector, byte inputPin )
 {
-    this->debounceMillis = debounceMillis;
-    this->stableTime = millis();
-    this->previousReading = wrap->get();
+    this->selector = selector;
+    this->input = new SimpleInput(inputPin);
 }
+
+Mux::Mux( Selector *selector, Input* input )
+{
+    this->selector = selector;
+    this->input = input;
+}
+
+Input* Mux::createInput( byte address )
+{
+    return new MuxInput( this, address );
+}
+
+boolean Mux::get( byte address )
+{
+    this->selector->select( address );
+    return this->input->get();
+}
+
+// MUX INPUT
+
+MuxInput::MuxInput( Mux *mux, byte address )
+{
+    this->mux = mux;
+    this->address = address;
+}
+
+boolean MuxInput::get()
+{
+    return this->mux->get( address );
+}
+
+// DEBOUNCED INPUT
 
 boolean DebouncedInput::get()
 {
@@ -65,6 +107,48 @@ boolean DebouncedInput::get()
     return this->stableState;
 }
 
+DebouncedInput::DebouncedInput( Input* wrap, int debounceMillis )
+  : wrapped(wrap)
+{
+    this->debounceMillis = debounceMillis;
+    this->stableTime = millis();
+    this->previousReading = wrap->get();
+}
+
+// DELAY PERIOD
+unsigned long delayPeriodPrev = 0;
+
+void delayPeriod( int period ) {
+
+    unsigned long now = millis();
+    unsigned long diff = now - delayPeriodPrev;
+    delayPeriodPrev = now;
+    if ( diff < period ) {
+        delay( diff );
+    } else if ( diff > 1000000000L ) {
+        // Hopefully, this tests for when millis() has rolled over, but as it takes 50 days,
+        // I haven't actually tested it!!!
+        // After a rollover, wait the maximum time. Not perfect, but good enough I think.
+        delay( period );
+    }
+}
+
+// RUN PERIODICALLY
+RunPeriodically::RunPeriodically( unsigned long millis, void (*callback)(void) ) {
+    this->period = millis;
+    this->prevMillis = 0L;
+    this->callback = callback;
+}
+
+void RunPeriodically::run() {
+    unsigned long diff = millis() - this->prevMillis;
+    if ( diff > period ) {
+        this->prevMillis = millis();
+        this->callback();
+    }
+}
+                                  
+// BINARY INPUT
 
 BinaryInput::BinaryInput( AnalogInput *wrap, float calibration, boolean reversed )
 {
@@ -78,47 +162,86 @@ boolean BinaryInput::get()
     return (this->wrapped->get() < this->calibration) ^ this->reversed;
 }
 
+// SELECTOR
 
-MuxInput::MuxInput( Selector *mux, byte address, Input *input )
+Mux* Selector::createMux( byte inputPin )
 {
-    this->mux = mux;
-    this->address = address;
-    this->input = input;
+  return new Mux( this, inputPin );
 }
 
-boolean MuxInput::get()
+Mux* Selector::createMux( Input* input )
 {
-    this->mux->select( address );
-    return this->input->get();
+  return new Mux( this, input );
 }
 
+AnalogMux* Selector::createAnalogMux( byte inputPin )
+{
+  return new AnalogMux( this, new SimpleAnalogInput( inputPin ) );
+}
 
+AnalogMux* Selector::createAnalogMux( AnalogInput *analogInput )
+{
+  return new AnalogMux( this, analogInput );
+}
 
+// ADDRESS SELECTOR
+
+AddressSelector::AddressSelector( byte pinCount, byte *addressPins )
+{
+    this->pinCount = pinCount;
+    this->addressPins = addressPins;
+    
+    for ( byte i = 0; i < pinCount; i ++ ) {
+        pinMode( addressPins[i], OUTPUT );
+    }
+    
+    select( 0 );
+}
+
+AddressSelector::AddressSelector( byte a0, byte a1, byte a2 )
+{
+    this->pinCount = 3;
+    this->addressPins = (byte*) malloc( 3 );
+    this->addressPins[0] = a0;
+    this->addressPins[1] = a1;
+    this->addressPins[2] = a2;
+    
+    pinMode( a0, OUTPUT );
+    pinMode( a1, OUTPUT );
+    pinMode( a2, OUTPUT );
+    
+    select( 0 );
+}
+
+void AddressSelector::select( byte address )
+{
+    byte digit = 1;
+    for ( byte i = 0; i < pinCount; i ++ ) {
+        digitalWrite( this->addressPins[i], address & digit );
+        digit = digit << 1;
+    }
+}
+
+// BOOLEAN SELECTOR
+
+BooleanSelector::BooleanSelector( byte selectPin )
+{
+    this->selectPin = selectPin;
+    pinMode(selectPin, OUTPUT);
+}
+
+void BooleanSelector::select(byte address)
+{
+    digitalWrite( selectPin, address );
+}
+
+// INPUT BUTTON
 
 InputButton::InputButton( Input* input )
   : input( input )
 {
-    this->previousState = this->input->get();
-}
-
-boolean InputButton::pressed()
-{
-    boolean state = this->input->get();
-    if ( state && ! this->previousState ) {
-        this->previousState = true;
-        return true;
-    }
-    return false;
-}
-
-boolean InputButton::released()
-{
-    boolean state = this->input->get();
-    if ( (!state) && this->previousState ) {
-        this->previousState = false;
-        return true;
-    }
-    return false;
+    this->pressedDetected = false;
+    this->releasedDetected = false;
 }
 
 boolean InputButton::get()
@@ -126,49 +249,56 @@ boolean InputButton::get()
     return this->input->get();
 }
 
-
-CompoundButton::CompoundButton( Button **button, byte count )
+boolean InputButton::pressed()
 {
-    this->buttons = buttons;
-    this->count = count;  
-}
-
-boolean CompoundButton::get()
-{
-    for ( int i = 0; i < this->count; i ++ ) {
-        if (this->buttons[i]->get() ) {
-            return true;
-        }
+    boolean state = this->input->get();
+    if ( state && ! this->pressedDetected ) {
+        this->pressedDetected = true;
+        this->releasedDetected = false;
+        return true;
+    } else {
+        this->pressedDetected = state;
     }
     return false;
 }
 
+boolean InputButton::released()
+{
+    boolean state = this->input->get();
+    if ( (!state) && ! this->releasedDetected ) {
+        this->releasedDetected = true;
+        this->pressedDetected = false;
+        return true;
+    } else {
+        this->releasedDetected = ! state;
+    }
+    return false;
+}
+
+// COMPOUND BUTTON
+
+CompoundButton::CompoundButton( Button *buttonA, Button *buttonB )
+{
+    this->buttonA = buttonA;
+    this->buttonB = buttonB;
+}
+
+boolean CompoundButton::get()
+{
+    return this->buttonA->get() || this->buttonB->get();
+}
+
 boolean CompoundButton::pressed()
 {
-    // We check all buttons, even after we find a match, because pressed() can have a side effect,
-    // so we need to call them (to avoid weirdness if more than one grouped button is pressed).
-    boolean result = false;
-    for ( int i = 0; i < this->count; i ++ ) {
-        if (this->buttons[i]->pressed() ) {
-            result = true;
-        }
-    }
-    return result;
+    return this->buttonA->pressed() || this->buttonB->pressed();
 }
 
 boolean CompoundButton::released()
 {
-    // We check all buttons, even after we find a match, because pressed() can have a side effect,
-    // so we need to call them (to avoid weirdness if more than one grouped button is pressed).
-    boolean result = false;
-    for ( int i = 0; i < this->count; i ++ ) {
-        if (this->buttons[i]->released() ) {
-            result = true;
-        }
-    }
-    return result;
+    return this->buttonA->released() || this->buttonB->released();
 }
 
+// SIMPLE OUTUT
 
 SimpleOutput::SimpleOutput( int pin, boolean lowValue )
 {
@@ -181,6 +311,8 @@ void SimpleOutput::set( boolean value )
 {
     digitalWrite( this->pin, value == lowValue ? LOW : HIGH );
 }
+
+// BUFFERED OUTPUT
 
 BufferedOutput::BufferedOutput( byte *buffer, int index )
 {
@@ -196,6 +328,7 @@ void BufferedOutput::set( boolean value )
     }
 }
 
+// ANALOG INPUT
 
 EasedAnalogInput* AnalogInput::ease( Ease* ease )
 {
@@ -216,7 +349,9 @@ BinaryInput* AnalogInput::binary( float calibration, boolean reversed )
 {
     return new BinaryInput( this, calibration, reversed );
 }
-    
+
+// SIMPLE ANALOG INPUT
+
 SimpleAnalogInput::SimpleAnalogInput( int pin )
 {
     pinMode( pin, INPUT );
@@ -228,6 +363,40 @@ float SimpleAnalogInput::get()
     float raw = analogRead( this->pin );
     return raw / 1023.0f; // NOTE. the range is 0..1 INCLUSIVE, therefore use 1023, not 1024.
 }
+
+// ANALOG MUX
+
+AnalogMux::AnalogMux( Selector *selector, AnalogInput *input )
+{
+    this->selector = selector;
+    this->input = input;
+}
+
+float AnalogMux::get( byte address )
+{
+    this->selector->select( address );
+    return this->input->get();
+}
+
+AnalogInput* AnalogMux::createInput( byte address )
+{
+    return new AnalogMuxInput( this, address );
+}
+
+// MUX ANALOG INPUT
+
+AnalogMuxInput::AnalogMuxInput( AnalogMux *mux, byte address )
+{
+    this->mux = mux;
+    this->address = address;
+}
+
+float AnalogMuxInput::get()
+{
+    return this->mux->get( this->address );
+}
+
+// CLIPPED ANALOG INPUT
 
 ClippedAnalogInput::ClippedAnalogInput( AnalogInput* wrap, float minimum, float maximum )
   : wrapped( wrap )
@@ -254,6 +423,8 @@ float ClippedAnalogInput::get()
     return result;
 }
 
+// SCALED ANALOG INPUT
+
 ScaledAnalogInput::ScaledAnalogInput( AnalogInput* wrap, float scale )
 {
     this->wrapped = wrap;
@@ -267,6 +438,8 @@ float ScaledAnalogInput::get()
     return raw * this->scale;  
 }
 
+// EASED ANALOG INPUT
+
 EasedAnalogInput::EasedAnalogInput( AnalogInput* wrap, Ease* ease )
   : wrapped( wrap ), ease( ease )
 {
@@ -277,27 +450,20 @@ float EasedAnalogInput::get()
     return this->ease->ease( this->wrapped->get() );
 }
 
-
-MuxAnalogInput::MuxAnalogInput( Selector *mux, byte address, AnalogInput *input )
-{
-    this->mux = mux;
-    this->address = address;
-    this->input = input;
-}
-
-float MuxAnalogInput::get()
-{
-    this->mux->select( address );
-    return this->input->get();
-}
-
-
-
+// PWM OUTPUT
 
 EasedPWMOutput* PWMOutput::ease( Ease *ease )
 {
     return new EasedPWMOutput( this, ease );
 }
+
+
+ScaledPWMOutput* PWMOutput::scale( float scale )
+{
+    return new ScaledPWMOutput( this, scale );
+}
+
+// SIMPLE PWM OUTPUT
 
 SimplePWMOutput::SimplePWMOutput( int pin )
 {
@@ -311,13 +477,7 @@ void SimplePWMOutput::set( float value )
     analogWrite( this->pin, v);
 }
 
-
-ScaledPWMOutput* PWMOutput::scale( float scale )
-{
-    return new ScaledPWMOutput( this, scale );
-}
-
-
+// SCALED PWM OUTPUT
 
 ScaledPWMOutput::ScaledPWMOutput( PWMOutput* wrap, float maximum )
   : wrapped( wrap ), scale( maximum )
@@ -329,6 +489,8 @@ void ScaledPWMOutput::set( float value )
     this->wrapped->set( value / this->scale );
 };
 
+// EASED PWM OUTPUT
+
 EasedPWMOutput::EasedPWMOutput( PWMOutput* wrap, Ease* ease )
   : wrapped( wrap ), ease( ease )
 {
@@ -339,22 +501,7 @@ void EasedPWMOutput::set( float value )
     this->wrapped->set( this->ease->ease( value ) );
 }
 
-
-
-MuxWithChipSelector::MuxWithChipSelector( Selector* mux, Selector* chipSelector, byte addressLines )
-{
-    this->mux = mux;
-    this->chipSelector = chipSelector;
-    this->addressLines = addressLines;
-}
-
-void MuxWithChipSelector::select( int address )
-{
-    this->mux->select( address );
-    this->chipSelector->select( address >> this->addressLines );
-}
-
-
+// EASE (various)
 
 float Linear::ease( float from  )
 {
@@ -367,8 +514,6 @@ float Jump::ease( float from )
     return from < 0.5 ? 0 : 1;
 }
 Jump jump = Jump();
-
-
 
 float EaseInQuad::ease( float from )
 {
@@ -409,4 +554,4 @@ float EaseOutQuart::ease( float from )
 }
 EaseOutQuart easeOutQuart = EaseOutQuart();
 
-
+// END

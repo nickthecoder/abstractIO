@@ -14,7 +14,7 @@ then the lower half of the analog range is never used.
  
 So, the clipped analog input will give 0 for black and 1 for very bright, which is much more useful than the unclipped one.
 
-Finally, we can make a regular digital input, and then treat is like a regular switch.
+Finally, we can make a digital Input, so that we can treat is like a regular switch.
 */
 
 

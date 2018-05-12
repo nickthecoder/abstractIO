@@ -1,7 +1,7 @@
 #include <abstractIO.h>
-#include <abstract_shift595.h>
-#include <abstract_shift164.h>
-#include <abstract_lineDecoder138.h>
+#include <shift595.h>
+#include <shift164.h>
+#include <lineDecoder138.h>
 
 /*
 Use a shift registor to act as a chip-selector.
@@ -20,11 +20,12 @@ NOTE. The same code can be used to chain multiple 595s or 164s together, just ch
 and change the values of "lines" as appropriate. Currently the code for the 138 doesn't support chaining.
 */
 
-Shift595Selector *selector595;
-//Shift164Selector *selector164;
-//LineDecoder138 *selector138;
-
 int lines = 6; // Number of output lines of the selector.
+
+//BooleanSelector *selector = new BooleanSelector( 12 ); // Chip enable pin, with inverter to the 2nd chip.
+//Shift595Selector *selector = new Shift595Selector( 12, 13, 11, lines ); // latch, clock, data, output line count
+//Shift164Selector *selector = new Shift595Selector( 12, 13, 11, lines ); // latch, clock, data, output line count
+//LineDecoder138 *selector = new LineDecoder138( 4, 5, 6 ); // Address pins
 
 // If you connect all 8 lines to LEDs and then reduce the lines to 4, you will see that the first four lines
 // are well behaved, and the last four will have junk in them. This is *not* a bug, its just a side effect of
@@ -33,25 +34,18 @@ int lines = 6; // Number of output lines of the selector.
 void setup()
 {
     Serial.begin( 9600 );
-    selector595 = new Shift595Selector( 12, 13, 11, lines ); // latch, clock, data, output line count
-    //selector164 = new Shift164Selector( 2, 3, lines ); // clock, data, output line count
-    //selector138 = new LineDecoder138( 4, 5, 6 ); // Address pins
 }
 
 void loop()
 { 
     Serial.println( "Up" );
     for ( int i = 0; i < lines - 1; i ++ ) {
-        selector595->select( i );
-        //selector164->select( i );
-        //selector138->select( i );
+        selector->select( i );
         delay( 500 );
     }
     Serial.println( "Down" );
     for ( int i = lines - 1; i > 0; i -- ) {
-        selector595->select( i );
-        //selector164->select( i );
-        //selector138->select( i );
+        selector->select( i );
         delay( 500 );
     }
 }

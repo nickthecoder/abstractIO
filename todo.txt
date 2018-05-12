@@ -2,48 +2,17 @@
 To Do
 =====
 
-Create more example code
-  Muxed analog inputs
-    Using a single AnalogInput (all the same kind of inputs)
-    Using different AnalogInputs (different kinds of inputs)
+Fix IO Expansion board, and test the example.
 
-    16 LDRs in a 4x4 grid?
-    Two 4051s, an inverter, a 138 and a 164
-    Jumpers on the chip selects
-      Either to the arduino&inverter, or the 138 or the 164.
+Test the DIYduino board.
 
-  Test the Shift164 and LineDecoder138 in "Selector" example (when the chips arrive in the post).
+Test examples : AnalogMux, MCP23017, FadeLED, Mux, Selector
 
-  595 shift register - add two shift registers, and 16 LEDs
+Implement external PWM output. The library look nasty, low level stuff, that is nowhere near obvious how it works!
 
-Create test boards for each of the examples.
-  
-
-Input
------
-
-
-AnalogInput
------------
-
-
-Output
-------
-
-
-PWMOutput
----------
-
-Implement an external PWM output - waiting for one from China, especially for this!
-
-IR Remote
----------
-
-Other
------
-
-Rename "remote"
 Create an IR Output (sends an IR signal) - One class per protocol.
+
+New class for rotary encoder
 
 RF Transmitter / Reciever
 Create RFButton similar to the IRButton
