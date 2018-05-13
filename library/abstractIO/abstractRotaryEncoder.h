@@ -21,6 +21,10 @@
 #include <Arduino.h>
 #include "abstractIO.h"
 
+class RotaryEncoder;
+class SimpleRotaryEncoder;
+class REAnalogInput;
+
 class RotaryEncoder
 {
   public :
@@ -28,7 +32,7 @@ class RotaryEncoder
     virtual int get();
     virtual void set( int value );
     
-    AnalogInput* createAnalogInput( int steps );
+    REAnalogInput* createAnalogInput( int steps );
 };
 
 /*
@@ -60,6 +64,7 @@ class REAnalogInput : public AnalogInput
   public :
     REAnalogInput( RotaryEncoder* re, int steps );
     virtual float get();
+    void set( float value /* 0..1 */ );
 
   protected :
     RotaryEncoder* re;

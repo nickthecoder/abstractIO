@@ -2,7 +2,7 @@
 
 // ROTARY ENCODER
 
-AnalogInput* RotaryEncoder::createAnalogInput( int steps )
+REAnalogInput* RotaryEncoder::createAnalogInput( int steps )
 {
     return new REAnalogInput( this, steps );
 }
@@ -65,3 +65,7 @@ float REAnalogInput::get()
     }
 }
 
+void REAnalogInput::set( float value )
+{
+    this->re->set( steps * value );
+}

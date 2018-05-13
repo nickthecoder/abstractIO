@@ -10,8 +10,6 @@ You would imagine that a linear fade from 0 to 255 would give a nice even fade, 
 There is very little difference between values over 128, so the light appears fully bright for most of the range.
 
 Using EaseIn, gives a much nicer fade.
-Note. This effect is less noticable if you use a high value resistor, thus never getting full brightness.
-
 */
 
 PWMOutput* pwm1 = new SimplePWMOutput( 3 ); // No ease. The PWM value is linear with respect to the analog input.
@@ -21,10 +19,11 @@ PWMOutput* pwm3 = (new SimplePWMOutput( 9 ))->ease( &easeInQuart );
 
 AnalogInput* input1 = new SimpleAnalogInput( A1 );
 AnalogInput* input2 = new SimpleAnalogInput( A0 );
-AnalogInput* input3 = (new SimpleRotaryEncoder( 4, 5 ))->createAnalogInput( 50 );
+REAnalogInput* input3 = (new SimpleRotaryEncoder( 4, 5 ))->createAnalogInput( 50 );
 
 void setup()
 {
+  input3->set( 0.5 ); // Start the rotary encoder at the mid-way point.
 }
 
 void loop()
