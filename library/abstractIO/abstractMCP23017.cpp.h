@@ -22,6 +22,9 @@
 #define MCP23017_IODIRA 0x00 // Set the direction of bank A pins (HIGH for INPUT, and LOW for OUTPUT)
 #define MCP23017_IODIRB 0x01 // Set the direction of bank B pins (HIGH for INPUT, and LOW for OUTPUT)
 
+#define MCP23017_IPOLA  0x02 // Input polarity. A high bit reverses the logic when reading an input.
+#define MCP23017_IPOLB  0x03 // So a switch with a pullup resistor will return HIGH when pressed.
+
 #define MCP23017_GPPUA 0x0C // Enable pullup resistors on bank A
 #define MCP23017_GPPUB 0x0D // Enable pullup resistors on bank B
 
@@ -30,6 +33,7 @@
 
 #define MCP23017_OLATA  0x14 // Output Latch bank A
 #define MCP23017_OLATB  0x15 // Output Latch bank B
+
 
 
 // ABSTRACT MCP23017
@@ -123,6 +127,11 @@ void AbstractMCP23017::pinMode( byte pinNumber, byte mode )
     }
 }
 
+void AbstractMCP23017::inputPolarity( byte pinNumber, boolean value )
+{
+    this->setRegisterBit( pinNumber < 8 ? MCP23017_IPOLA : MCP23017_IPOLB, pinNumber & 7, value );
+}
+
 Input* AbstractMCP23017::createInput( byte pinNumber, boolean trueReading, boolean enablePullUp ) 
 {
     return new MCP23017Input( this, pinNumber, trueReading, enablePullUp );
@@ -201,13 +210,13 @@ MCP23017Input::MCP23017Input( AbstractMCP23017* mcp23017, byte pinNumber, boolea
 {
     this->mcp23017 = mcp23017;
     this->pinNumber = pinNumber;
-    this->trueReading = trueReading;
     this->mcp23017->pinMode( pinNumber, enablePullUp ? INPUT_PULLUP : INPUT );
+    this->mcp23017->inputPolarity( pinNumber, ! trueReading );
 }
 
 boolean MCP23017Input::get()
 {
-    return this->mcp23017->digitalRead( this->pinNumber ) == this->trueReading;
+    return this->mcp23017->digitalRead( this->pinNumber );
 }
 
 // MCP23017 OUTPUT

@@ -1,6 +1,6 @@
 /*
  * Interfaces with the MCP23017 using I2C interface.
- * This only gives access to basic IO, it does NOT support the full functionality of the chip.
+ * This only gives access to basic IO, it does NOT support the interrupt pins.
  * 
  * http://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf
  *
@@ -28,6 +28,9 @@ class AbstractMCP23017 {
     AbstractMCP23017( byte address );
       
     void pinMode( byte pinNumber /* 0..15 */, byte mode /*INPUT, OUTPUT or INPUT_PULLUP */ );
+    
+    // If value is true, then the input logic is reversed (useful for buttons with pullup resistors).
+    void inputPolarity( byte pinNumber /* 0..15 */, boolean value );
 
     virtual boolean digitalRead( byte pinNumber /* 0..15 */ ) = 0;
     virtual void digitalWrite( byte pinNumber /* 0..15 */, boolean value ) = 0; 
@@ -114,7 +117,6 @@ class MCP23017Input : public Input {
   protected :
       AbstractMCP23017* mcp23017;
       byte pinNumber;
-      boolean trueReading; // Either HIGH or LOW
 };
 
 class MCP23017Output : public Output {
