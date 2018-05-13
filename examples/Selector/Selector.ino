@@ -1,35 +1,44 @@
 #include <abstractIO.h>
-#include <shift595.h>
-#include <shift164.h>
-#include <lineDecoder138.h>
+#include <abstractShiftRegister.h>
 
 /*
 Use a shift registor to act as a chip-selector.
 i.e. give it an address (the chip number to enable) in the range 0..7, and the corresponding output of the shift register will be high.
 All other outputs will be low.
-
-In this example, we will drive two shift registers, a 595 and a 164, and also a line decoder 138.
-You can wire up one or more chips. If you hang LEDs + resistors on the outputs, you can see the results.
-
-The 164 only uses 2 pins, which makes it more applicable in most cases.
-However, as it doesn't have a latch, intermediate outputs will be seen on its output's, but this is usually not a problem when used as a chip selector.
-The 595 and the 138 should not show any intermediate outputs.
-If you need 4 or fewer outputs, then the the 138 will only need 1 or 2 pins.
-
-NOTE. The same code can be used to chain multiple 595s or 164s together, just chain the end of one register to the data-in of the next,
-and change the values of "lines" as appropriate. Currently the code for the 138 doesn't support chaining.
 */
 
-int lines = 6; // Number of output lines of the selector.
+// Number of output lines of the selector.
+// Use 2 when testing the BooleanSelector, 8 for for the ShiftRegisterSelector, 40 for the ComboSelector
+// 8 for a single 74xx138 line decoder. 16 for two of them.
+const int lines = 16;
 
-//BooleanSelector *selector = new BooleanSelector( 12 ); // Chip enable pin, with inverter to the 2nd chip.
-//Shift595Selector *selector = new Shift595Selector( 12, 13, 11, lines ); // latch, clock, data, output line count
-//Shift164Selector *selector = new Shift595Selector( 12, 13, 11, lines ); // latch, clock, data, output line count
-//LineDecoder138 *selector = new LineDecoder138( 4, 5, 6 ); // Address pins
+// Choose one of the following :
 
-// If you connect all 8 lines to LEDs and then reduce the lines to 4, you will see that the first four lines
-// are well behaved, and the last four will have junk in them. This is *not* a bug, its just a side effect of
-// being efficient.
+// The simplest chip selector using just one pin, with an external inverter to select one of just 2 chip select lines.
+//Selector *selector = new BooleanSelector( 10 );
+
+// 74xx595 shift register to operate 8 chip select lines. Note, can be chained to give as many chip select lines as you need.
+//Selector *selector = new ShiftRegisterSelector( new LatchedShiftRegister(2,4,3 /*data, clock, latch */), lines );
+
+// An unlatched shift register. You could also uses this with a 74xx595, and tie the latch HIGH.
+//Selector *selector = new ShiftRegisterSelector( new ShiftRegister( 2, 4 /* data, clock */ ), lines );
+
+// A 74xx595 where the lowest 3 bits are used as address lines (8 addresses), and the top 5 bits are used as chip select lines (active LOW).
+// I use this as the selector for a set of 4051 multiplexers, giving a maximum of 40 sources.
+// Note, this does NOT support chaining of the 595.
+//Selector *selector = new ComboSelector( new LatchedShiftRegister(2,4,3 /*data, clock, latch */), lines );
+
+// Use a Line Decoder chip, such as the 74xx138. for upto 8 chip select lines.
+//Selector *selector = new AddressSelector( 4, 5, 6 /* Address pins A,B,C*/ );
+
+// Use a pair of 74xx138 Line Decoder chips for upto 16 lines.
+// The first three pins are used as the "Select Inputs" A,B,C.
+// The last pin (pin 4) is wired to the one of the 74xx138's G1, and the other's G2A. (Called "Enable Inputs").
+// PS. I haven't tested this as I don't have any 74xx138 at hand. Oops sorry. I think it should work though!
+// You can do a similar trick using the G2B with a 5th address bit, but this only delivers 24 chips select lines (using 3 74xx138s).
+// You would need an additional external inverter to deliver the full 32 chip select lines (using 4 74xx138s).
+byte addressPins[4] = {2, 3, 4, 5};
+Selector *selector = new AddressSelector( 4 /* array size */, addressPins );
 
 void setup()
 {

@@ -191,11 +191,11 @@ AddressSelector::AddressSelector( byte pinCount, byte *addressPins )
     this->pinCount = pinCount;
     this->addressPins = addressPins;
     
+    select( 0 );
+
     for ( byte i = 0; i < pinCount; i ++ ) {
         pinMode( addressPins[i], OUTPUT );
-    }
-    
-    select( 0 );
+    }    
 }
 
 AddressSelector::AddressSelector( byte a0, byte a1, byte a2 )
@@ -206,11 +206,11 @@ AddressSelector::AddressSelector( byte a0, byte a1, byte a2 )
     this->addressPins[1] = a1;
     this->addressPins[2] = a2;
     
+    select( 0 );
+
     pinMode( a0, OUTPUT );
     pinMode( a1, OUTPUT );
-    pinMode( a2, OUTPUT );
-    
-    select( 0 );
+    pinMode( a2, OUTPUT );    
 }
 
 void AddressSelector::select( byte address )

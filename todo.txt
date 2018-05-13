@@ -8,10 +8,11 @@ Test examples : AnalogMux, Mux, Selector
 
 Implement external PWM output. The library look nasty, low level stuff, that is nowhere near obvious how it works!
 
-Create an IR Output (sends an IR signal) - One class per protocol.
+Create an IR Send (sends an IR signal) - One class per protocol.
     Note, this shouldn't be a subclass of Output.
 
 RF Transmitter / Reciever
-Create RFButton similar to the IRButton
+    Create RFButton similar to the IRButton
+    The "send" should also share the same interface with IR Send
 
 

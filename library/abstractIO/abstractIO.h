@@ -511,7 +511,7 @@ class AddressSelector : public Selector
  * Uses a single output pin to select one of two chips.
  * Use an inverter on the chips select pin, so that one of the chips is enabled at a time.
  */
-class BooleanSelector : Selector {
+class BooleanSelector : public Selector {
 
   private :
     byte selectPin;
