@@ -1,43 +1,36 @@
 #include <abstractIO.h>
+#include <abstractRotaryEncoder.h>
 
 /*
-Demonstates how to use Eases with PWM pins to give a nicer fade.
-Fade 3 LEDs in and out continuously.
+Demonstates how to use Eases with PWM pins to give a nice fade.
+Adjusts the brightness of 2 LEDs via potentiometers.
+Another LED is controlled via a rotary encoder.
 
-You would imagine that a linear fade from 0 to 255 would give a nice even fade, but for my LEDs it isn't.
-There is very little difference between values over 128, so the light appears fully bright for most much of the cycle.
+You would imagine that a linear fade from 0 to 255 would give a nice even fade, but for my LEDs it does't.
+There is very little difference between values over 128, so the light appears fully bright for most of the range.
 
-Using EaseIn, gives a much nicer fade. The EaseOut give an even sharper (worse) fade.
+Using EaseIn, gives a much nicer fade.
+Note. This effect is less noticable if you use a high value resistor, thus never getting full brightness.
+
 */
 
+PWMOutput* pwm1 = new SimplePWMOutput( 3 ); // No ease. The PWM value is linear with respect to the analog input.
+PWMOutput* pwm2 = (new SimplePWMOutput( 6 ))->ease( &easeInQuart );
+PWMOutput* pwm3 = (new SimplePWMOutput( 9 ))->ease( &easeInQuart );
+// Try EaseInCubic and EaseInQuad. EaseOutCubic gives the opposite effect.
 
-PWMOutput* regular;
-PWMOutput* easeIn;
-PWMOutput* easeOut;
+AnalogInput* input1 = new SimpleAnalogInput( A1 );
+AnalogInput* input2 = new SimpleAnalogInput( A0 );
+AnalogInput* input3 = (new SimpleRotaryEncoder( 4, 5 ))->createAnalogInput( 50 );
 
 void setup()
 {
-    Serial.begin( 9600 );
-
-    regular = new SimplePWMOutput( 9 );
-    easeIn = (new SimplePWMOutput( 10 ))->ease( &easeInQuart ); // Try EaseInCubic and EaseInQuad too.
-    easeOut = (new SimplePWMOutput( 11 ))->ease( &easeOutQuart ); // Try EaseOutCubic and EaseOutQuad too.
 }
 
 void loop()
 {
-    // Notice how all the outputs are set identically, but the visuals are different.
-    for ( float i = 0; i < 1; i += 0.01 ) {
-        regular->set( i );
-        easeIn->set( i );
-        easeOut->set( i );
-        delay( 10 );
-    }
-    for ( float i = 1; i > 0; i -= 0.01 ) {
-        regular->set( i );
-        easeIn->set( i );
-        easeOut->set( i );
-        delay( 10 );
-    }
+    pwm1->set( input1->get() );
+    pwm2->set( input2->get() );
+    pwm3->set( input3->get() );
 }
 

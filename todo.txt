@@ -2,17 +2,20 @@
 To Do
 =====
 
-Fix IO Expansion board, and test the example.
-
 Test the DIYduino board.
 
-Test examples : AnalogMux, MCP23017, FadeLED, Mux, Selector
+Test examples : AnalogMux, FadeLED, Mux, Selector
+
+New example using AnalogInput to control the brightness of two LED (or add that to the FadeLED example).
 
 Implement external PWM output. The library look nasty, low level stuff, that is nowhere near obvious how it works!
 
 Create an IR Output (sends an IR signal) - One class per protocol.
 
-New class for rotary encoder
+New class for rotary encoder.
+    One class has an int value within a given range.
+    Another class (or maybe the same one) uses that info to implement the AnalogInput interface,
+        but the value can also be SET.
 
 RF Transmitter / Reciever
 Create RFButton similar to the IRButton

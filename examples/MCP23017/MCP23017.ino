@@ -1,12 +1,15 @@
 
 /* 
-Does the same as the SimpleInputOutput example, but uses an MCP23017
+Does the same as the SimpleInputOutput example, but uses an MCP23017 IO Extender, using 5 of the additional 16 GPIO pins.
+The main body of code is identical to the SimpleInputOuput example, to demonstrate that only the setup code needs to
+know the details of how your project is wired.
 
-Turns an LED on when switch A is held down, when switch B is pressed and when switch C is released.
+Turns an LED on when switch A is held down, when switch B is pressed another LED lights, and when B is released it gives
+a double flash. A third LED behaves the same for a second button.
 
 Connect I2C clock (A5) to pin 12 of the MCP23017 and I2C data (A4) to pin 13 of the MCP23017
 
-Connect switches to ground and to data lines 2 and 3 (pins 23 and 24 or the MCP23017)
+Connect buttons with pull up resistors to data lines 2 and 3 (pins 23 and 24 or the MCP23017)
 Connect LEDs from +5V to data line 3 and 4 (pins 25 and 26) of the MCP23017 via suitable resistors.
 
 Use the "default" I2C address by tieing pins 15,16 and 17 to ground.
