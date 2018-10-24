@@ -15,4 +15,5 @@ RF Transmitter / Reciever
     Create RFButton similar to the IRButton
     The "send" should also share the same interface with IR Send
 
-
+I2C Interface for rotary encoders :
+    https://www.allaboutcircuits.com/projects/program-a-pic-chip-as-an-i2c-slave-device-for-custom-sensor-and-i-o-interfa/

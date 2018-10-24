@@ -133,6 +133,10 @@ class ShiftRegisterSelector : public Selector
  * If you use the default order of MSBFIRST in the constructor to the ShiftRegister, then the address
  * will appear on Q0, Q1 and Q2 of the shift register's outputs, and the chip-select lines on
  * the remaining outputs.
+ * 
+ * NOTE. This was created especially for my eplayground multiplexer module :
+ * https://github.com/nickthecoder/eplayground/tree/master/pcb/multiplexer
+ * But may find other uses.
  */
 class ComboSelector : public Selector
 {
